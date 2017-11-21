@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"../accessor"
+	"github.com/Gokul-G/Remote-Download-Server/accessor"
 )
 
 func GetDownloadList(w http.ResponseWriter, r *http.Request) {

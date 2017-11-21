@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"../controllers"
+	"github.com/Gokul-G/Remote-Download-Server/controllers"
 	"github.com/gorilla/mux"
 )
 

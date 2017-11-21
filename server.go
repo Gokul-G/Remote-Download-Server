@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"./accessor"
-	"./routers"
+	"github.com/Gokul-G/Remote-Download-Server/accessor"
+	"github.com/Gokul-G/Remote-Download-Server/routers"
 	"github.com/codegangsta/negroni"
 )
 

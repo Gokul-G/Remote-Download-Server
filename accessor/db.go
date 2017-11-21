@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"../models"
+	"github.com/Gokul-G/Remote-Download-Server/models"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/mattes/migrate"
 	"github.com/mattes/migrate/database/mysql"
