@@ -21,3 +21,8 @@ type Download struct {
 }
 
 type Downloads []Download
+
+//Data For Download
+type DownloadData struct {
+	URL string `json:"url"`
+}
