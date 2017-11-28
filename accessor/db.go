@@ -2,21 +2,21 @@ package accessor
 
 import (
 	"database/sql"
-	"fmt"
 
-	"github.com/Gokul-G/Remote-Download-Server/models"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" //Mysql Driver
 	"github.com/mattes/migrate"
 	"github.com/mattes/migrate/database/mysql"
 	_ "github.com/mattes/migrate/source/file"
 )
 
+//Datastore contanins the database Connection Object
 type Datastore struct {
 	db *sql.DB
 }
 
 var DS *Datastore
 
+//InitDB initialies the DB Connection at start
 func InitDB() error {
 
 	db, err := sql.Open("mysql", "root@/remote_download?charset=utf8&parseTime=true&multiStatements=true")
@@ -34,20 +34,6 @@ func InitDB() error {
 
 	DS = &Datastore{db}
 	return nil
-}
-
-func GetDownloadListFromDB() models.Downloads {
-	var downloads models.Downloads
-	var download models.Download
-	rows, err := DS.db.Query("select * from downloads;")
-	for rows.Next() {
-		err = rows.Scan(&download.ID, &download.Name, &download.URL, &download.Status, &download.Created_at)
-		downloads = append(downloads, download)
-		if err != nil {
-			fmt.Print(err.Error())
-		}
-	}
-	return downloads
 }
 
 func handleError(err error) {

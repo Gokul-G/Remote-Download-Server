@@ -1,7 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
+// DownloadStatus - Represents the Download Status of Each Download Process
 type DownloadStatus int
 
 const (
@@ -11,18 +14,14 @@ const (
 	Completed
 )
 
-//Downloads Object
-type Download struct {
-	ID         int            `json:"id" form:"-"`
-	Name       string         `json:"name" form:"name"`
-	URL        string         `json:"url"`
-	Status     DownloadStatus `json:"status"`
-	Created_at time.Time      `json:"created_at"`
+//DownloadItem - Represents the each Download Item
+type DownloadItem struct {
+	ID        int64          `json:"id" form:"-"`
+	Name      string         `json:"name" form:"name"`
+	URL       string         `json:"url"`
+	Status    DownloadStatus `json:"status"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
-type Downloads []Download
-
-//Data For Download
-type DownloadData struct {
-	URL string `json:"url"`
-}
+//DownloadItems - Array of Download Item
+type DownloadItems []DownloadItem
