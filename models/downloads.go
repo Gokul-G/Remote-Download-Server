@@ -20,6 +20,7 @@ type DownloadItem struct {
 	Name      string         `json:"name" form:"name"`
 	URL       string         `json:"url"`
 	Status    DownloadStatus `json:"status"`
+	Size      int64          `json:"size"`
 	CreatedAt time.Time      `json:"created_at"`
 }
 

@@ -3,21 +3,24 @@ package controllers
 import (
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/Gokul-G/Remote-Download-Server/accessor"
-
 	"github.com/Gokul-G/Remote-Download-Server/models"
 )
 
-//Private Methods
-var bytesToMegaBytes = 1048576.0
+var bytesToMegaBytes = int64(1048576)
 
 type PassThru struct {
 	io.Reader
 	curr  int64
-	total float64
+	total int64
 }
 
 func (pt *PassThru) Read(p []byte) (int, error) {
@@ -25,16 +28,16 @@ func (pt *PassThru) Read(p []byte) (int, error) {
 	pt.curr += int64(n)
 	// last read will have EOF err
 	if err == nil || (err == io.EOF && n > 0) {
-		printProgress(float64(pt.curr), pt.total)
+		printProgress(int64(pt.curr), pt.total)
 	}
 
 	return n, err
 }
 
-func printProgress(curr, total float64) {
+func printProgress(curr, total int64) {
 	width := 40.0
 	output := ""
-	threshold := (curr / total) * float64(width)
+	threshold := float64(curr/total) * float64(width)
 	for i := 0.0; i < width; i++ {
 		if i < threshold {
 			output += "="
@@ -43,10 +46,28 @@ func printProgress(curr, total float64) {
 		}
 	}
 
-	fmt.Printf("\r[%s] %.1f of %.1fMB", output, curr/bytesToMegaBytes, total/bytesToMegaBytes)
+	fmt.Printf("\r[%s] %.1f of %.1fMB", output, float64(curr/bytesToMegaBytes), float64(total/bytesToMegaBytes))
 }
 
-func download(item *models.DownloadItem) (err error) {
+func download(data *models.DownloadData) (err error) {
+
+	var item = data.ToDownloadItem()
+
+	// Get the data
+	resp, err := http.Get(data.URL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	//Get the Download File Name
+	contentDisposition := resp.Header.Get("Content-Disposition")
+	_, params, err := mime.ParseMediaType(contentDisposition)
+	downloadFileName := params["filename"]
+
+	item.Name = createNonExistingFileName(downloadFileName)
+	item.URL = data.URL
+	item.Size = resp.ContentLength
 
 	// Create the file
 	out, err := os.Create(item.Name)
@@ -55,26 +76,42 @@ func download(item *models.DownloadItem) (err error) {
 	}
 	defer out.Close()
 
-	// Get the data
-	resp, err := http.Get(item.URL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
 	//DownloadProcess Started
-	accessor.UpdateDownloadStatus(item, models.InProgress)
+	item.Status = models.InProgress
+	accessor.CreateDownload(&item)
 
 	// Writer the body to file
-	src := &PassThru{Reader: resp.Body, total: float64(resp.ContentLength)}
+	src := &PassThru{Reader: resp.Body, total: resp.ContentLength}
 	_, err = io.Copy(out, src)
 	if err != nil {
 		return err
 	}
-
 	//DownloadProcess Ended
-	accessor.UpdateDownloadStatus(item, models.Completed)
-	print("\n Completed =>" + item.Name)
+	accessor.UpdateDownloadStatus(&item, models.Completed)
 
+	print("\n Completed =>" + item.Name)
 	return nil
+}
+
+func createNonExistingFileName(downloadFileName string) string {
+	localFileName := downloadFileName
+	var i = 0
+	for {
+		if i > 0 {
+			extension := filepath.Ext(downloadFileName)
+			name := strings.TrimSuffix(downloadFileName, extension)
+			localFileName = name + "_" + strconv.Itoa(i) + extension
+		}
+
+		if _, err := os.Stat(localFileName); os.IsNotExist(err) {
+			fmt.Println("File does not exist")
+			break
+		} else {
+			fmt.Println("File exists")
+		}
+		i++
+	}
+
+	itemName, _ := url.QueryUnescape(localFileName)
+	return itemName
 }

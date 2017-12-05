@@ -20,10 +20,7 @@ func StartDownload(w http.ResponseWriter, r *http.Request) {
 
 	var downloadData models.DownloadData
 	json.NewDecoder(r.Body).Decode(&downloadData)
-
-	var downloadItem = downloadData.ToDownloadItem()
-	go accessor.CreateDownload(&downloadItem)
-	go download(&downloadItem)
+	go download(&downloadData)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
