@@ -12,7 +12,7 @@ func GetDownloadListFromDB() models.DownloadItems {
 	var downloadItem models.DownloadItem
 	rows, err := DS.db.Query("select * from downloads;")
 	for rows.Next() {
-		err = rows.Scan(&downloadItem.ID, &downloadItem.Name, &downloadItem.URL, &downloadItem.Status, &downloadItem.CreatedAt)
+		err = rows.Scan(&downloadItem.ID, &downloadItem.Name, &downloadItem.URL, &downloadItem.Status, &downloadItem.Size, &downloadItem.CreatedAt)
 		downloadItems = append(downloadItems, downloadItem)
 		if err != nil {
 			fmt.Print(err.Error())

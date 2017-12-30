@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/Gokul-G/Remote-Download-Server/accessor"
@@ -20,18 +19,15 @@ func main() {
 	fmt.Println("Remote Download Server")
 	fmt.Println("Server Started...")
 
+	//Init DB
 	accessor.InitDB()
 
-	router := routers.InitRoutes()
-	router.HandleFunc("/", serverHandler)
+	//Init Broadcast
+	accessor.HandleBroadcast()
 
+	//Init Routes
+	router := routers.InitRoutes()
 	n := negroni.Classic()
 	n.UseHandler(router)
 	n.Run(":" + port)
-
-}
-
-func serverHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "")
 }
