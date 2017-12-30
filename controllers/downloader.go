@@ -11,24 +11,28 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Gokul-G/Remote-Download-Server/accessor"
 	"github.com/Gokul-G/Remote-Download-Server/models"
+
+	"github.com/Gokul-G/Remote-Download-Server/accessor"
+	_ "github.com/Gokul-G/Remote-Download-Server/models"
 )
 
 var bytesToMegaBytes = int64(1048576)
 
 type PassThru struct {
 	io.Reader
-	curr  int64
-	total int64
+	curr         int64
+	downloadItem models.DownloadItem
 }
 
 func (pt *PassThru) Read(p []byte) (int, error) {
 	n, err := pt.Reader.Read(p)
 	pt.curr += int64(n)
-	// last read will have EOF err
+
 	if err == nil || (err == io.EOF && n > 0) {
-		printProgress(int64(pt.curr), pt.total)
+		printProgress(int64(pt.curr), pt.downloadItem.Size)
+		var data = accessor.BroadcastMessage{DownloadIem: pt.downloadItem, DownloadedSize: pt.curr}
+		accessor.BroadcastChannel <- data
 	}
 
 	return n, err
@@ -81,7 +85,7 @@ func download(data *models.DownloadData) (err error) {
 	accessor.CreateDownload(&item)
 
 	// Writer the body to file
-	src := &PassThru{Reader: resp.Body, total: resp.ContentLength}
+	src := &PassThru{Reader: resp.Body, downloadItem: item}
 	_, err = io.Copy(out, src)
 	if err != nil {
 		return err

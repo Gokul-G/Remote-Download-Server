@@ -3,17 +3,18 @@ package accessor
 import (
 	"log"
 
+	"github.com/Gokul-G/Remote-Download-Server/models"
 	"github.com/gorilla/websocket"
 )
 
-type Message struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Message  string `json:"message"`
+type BroadcastMessage struct {
+	DownloadIem    models.DownloadItem `json:"download_item"`
+	DownloadedSize int64               `json:"downloaded_size"`
+	Progress       float64             `json:"progress"`
 }
 
-var Clients = make(map[*websocket.Conn]bool) // connected clients
-var BroadcastChannel = make(chan Message)    // broadcast channel
+var Clients = make(map[*websocket.Conn]bool)
+var BroadcastChannel = make(chan BroadcastMessage)
 
 func HandleBroadcast() {
 	go func() {

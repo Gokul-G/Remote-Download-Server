@@ -42,5 +42,9 @@ func SocketConnection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accessor.Clients[ws] = true
+	//Temp Fix
+	for {
+
+	}
 	defer ws.Close()
 }

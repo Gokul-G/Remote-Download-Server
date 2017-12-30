@@ -14,3 +14,4 @@ func SetStartDownloadRoutes(router *mux.Router) *mux.Router {
 	router.HandleFunc("/downloads", controllers.StartDownload).Methods("POST")
 	return router
 }
+

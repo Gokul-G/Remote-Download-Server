@@ -8,6 +8,7 @@ func InitRoutes() *mux.Router {
 	router := mux.NewRouter()
 	router = SetDownloadListRoutes(router)
 	router = SetStartDownloadRoutes(router)
+	router = SetBroadcastRoutes(router)
 
 	return router
 }
