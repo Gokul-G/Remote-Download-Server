@@ -26,8 +26,8 @@ GET /downloads
 ```
 
 ### Todos
- - Pause the Download Process
- - Add Torrentz 
+ - Pause (Download Process)
+ - Cancel (Download Process)
 
 License
 ----
